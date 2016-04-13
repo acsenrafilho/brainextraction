@@ -1,0 +1,19 @@
+#!/bin/bash
+#AFNI brain excration pipeline
+
+#Options variables:
+
+
+T1_IMAGE=$1
+T1_FOLDER=$2
+MASK_FOLDER=$3
+
+#Apply AFNI
+3dSkullStrip -input $T1_FOLDER/$T1_IMAGE
+# $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz
+
+#Transforming the output as binary brain mask
+fslmaths $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz
+
+#Copying the brain mask to the MASK_FOLDER
+cp $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz $MASK_FOLDER/

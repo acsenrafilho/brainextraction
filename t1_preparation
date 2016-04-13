@@ -1,0 +1,14 @@
+#!/bin/bash
+#T1 pre-processing preparation steps
+
+T1_IMAGE=$1
+PRE_FOLDER=$2
+T1_FOLDER=$3
+
+echo "  * Starting the T1 preparation - Image: $T1_IMAGE"
+echo "      --> Step 1: Neck slices removal"
+
+echo "      --> Step 2: Image inhomogeneity correction"
+# nu_correct - performs intensity normalization for intensity based segmentation.
+echo "      --> Step 3: Voxel intensity normalization"
+# mri_normalize - converts orig or nu volume into normalized white matter volume

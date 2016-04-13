@@ -1,0 +1,20 @@
+#!/bin/bash
+#FSL-BET brain excration pipeline
+
+#Options variables:
+# -B
+# -f
+
+T1_IMAGE=$1
+T1_FOLDER=$2
+MASK_FOLDER=$3
+
+#Apply FreeSurfer
+optiBET.sh -i $T1_FOLDER/$T1_IMAGE
+# $T1_FOLDER/${T1_IMAGE}_bm_optbet
+
+#Transforming the output as binary brain mask
+fslmaths $T1_FOLDER/${T1_IMAGE}_bm_optbet.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_optbet.nii.gz
+
+#Copying the brain mask to the MASK_FOLDER
+cp $T1_FOLDER/${T1_IMAGE}_bm_optbet.nii.gz $MASK_FOLDER/
