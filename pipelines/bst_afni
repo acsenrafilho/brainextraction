@@ -10,10 +10,14 @@ MASK_FOLDER=$3
 
 #Apply AFNI
 3dSkullStrip -input $T1_FOLDER/$T1_IMAGE
-# $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz
+3dAFNItoNIFTI $T1_FOLDER/skull_strip_out+orig.BRIK
+# Cleaning trash files
+rm $T1_FOLDER/*.BRIK $T1_FOLDER/*.HEAD
 
 #Transforming the output as binary brain mask
-fslmaths $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz
+fslmaths $T1_FOLDER/skull_strip_out.nii -bin $T1_FOLDER/skull_strip_out.nii
+gzip -9 skull_strip_out.nii
 
 #Copying the brain mask to the MASK_FOLDER
-cp $T1_FOLDER/${T1_IMAGE}_bm_afni.nii.gz $MASK_FOLDER/
+cp $T1_FOLDER/skull_strip_out.nii.gz $MASK_FOLDER/
+mv $MASK_FOLDER/skull_strip_out.nii.gz $MASK_FOLDER/${T1_IMAGE}_bm_afni.nii.gz

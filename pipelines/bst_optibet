@@ -9,12 +9,18 @@ T1_IMAGE=$1
 T1_FOLDER=$2
 MASK_FOLDER=$3
 
-#Apply FreeSurfer
-optiBET.sh -i $T1_FOLDER/$T1_IMAGE
-# $T1_FOLDER/${T1_IMAGE}_bm_optbet
+# Parameters
+USE_AFNI=`cat config/config_var.conf | grep USE_AFNI= | cut -c10-11`
 
-#Transforming the output as binary brain mask
-fslmaths $T1_FOLDER/${T1_IMAGE}_bm_optbet.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_optbet.nii.gz
+#Apply optiBET
+if [[ $USE_AFNI == "Y" ]]; then
+  optiBET.sh -i $T1_FOLDER/$T1_IMAGE -a
+  rm $T1_FOLDER/${T1_IMAGE}_optiBET_brain.nii.gz
+else
+  optiBET.sh -i $T1_FOLDER/$T1_IMAGE
+  rm $T1_FOLDER/${T1_IMAGE}_optiBET_brain.nii.gz
+fi
 
-#Copying the brain mask to the MASK_FOLDER
-cp $T1_FOLDER/${T1_IMAGE}_bm_optbet.nii.gz $MASK_FOLDER/
+#Moving the brain mask to the MASK_FOLDER
+mv $T1_FOLDER/${T1_IMAGE}_optiBET_brain_mask.nii.gz $MASK_FOLDER/
+mv $MASK_FOLDER/${T1_IMAGE}_optiBET_brain_mask.nii.gz $MASK_FOLDER/${T1_IMAGE}_bm_optiBET_afni${USE_AFNI}.nii.gz

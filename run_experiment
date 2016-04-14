@@ -18,7 +18,7 @@ usage(){
 
 T1_FOLDER=$1
 MASK_FOLDER=$2
-DO_PREPROCESSING="N"
+DO_PREPROCESSING=$3
 
 if [[ $# -lt 3 ]]; then
   usage
