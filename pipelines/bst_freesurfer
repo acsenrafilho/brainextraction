@@ -15,7 +15,7 @@ ATLAS=`cat config/config_var.conf | grep ATLAS= | cut -c7-9`
 FLOOD=`cat config/config_var.conf | grep FLOOD= | cut -c7-11`
 
 #Apply FreeSurfer
-if [[ $ATLAS == "Y"]]; then
+if [[ "$ATLAS" == "Y" ]]; then
   mri_watershed -atlas -h $FLOOD $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
 else
   mri_watershed -h $FLOOD $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz

@@ -32,7 +32,7 @@ for img in `ls $T1_FOLDER | grep .nii.gz`; do
 
     echo "  ** Study started - Image: $img"
     #Preparing the T1 data
-  if [[ $DO_PREPROCESSING == "Y" ]]; then
+  if [[ "$DO_PREPROCESSING" == "Y" ]]; then
     if [[ -d "ls $T1_FOLDER/pre-proc" ]]; then
       rm -R $T1_FOLDER/pre-proc
       mkdir $T1_FOLDER/pre-proc
@@ -57,4 +57,7 @@ for img in `ls $T1_FOLDER | grep .nii.gz`; do
 
   echo "  * Calling AFNI brain excration pipeline"
   source pipelines/bst_afni ${img%.*.*} $T1_FOLDER $MASK_FOLDER
+
+  echo "  * Calling ROBEX brain excration pipeline"
+  source pipelines/bst_robex ${img%.*.*} $T1_FOLDER $MASK_FOLDER
 done

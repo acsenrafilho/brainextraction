@@ -8,10 +8,12 @@ T1_FOLDER=$2
 MASK_FOLDER=$3
 
 #Apply ROBEX
-source ROBEX $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz
+cd ~/Documents/ROBEX
+./ROBEX $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz
 
 #Transforming the output as binary brain mask
 fslmaths $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz
 
 #Moving the brain mask to the MASK_FOLDER
 mv $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz $MASK_FOLDER/
+cd ~/Documents/GitProjects/brainextraction
