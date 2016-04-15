@@ -47,14 +47,14 @@ for img in `ls $T1_FOLDER | grep .nii.gz`; do
   fi
 
   echo "  * Calling FreeSurfer brain excration pipeline"
-  source pipelines/bst_freesurfer $img $T1_FOLDER $MASK_FOLDER
+  source pipelines/bst_freesurfer ${img%.*.*} $T1_FOLDER $MASK_FOLDER
 
   echo "  * Calling FSL-BET brain excration pipeline"
-  source pipelines/bst_fsl-bet $img $T1_FOLDER $MASK_FOLDER
+  source pipelines/bst_fsl-bet ${img%.*.*} $T1_FOLDER $MASK_FOLDER
 
   echo "  * Calling optiBET brain excration pipeline"
-  source pipelines/bst_optibet $img $T1_FOLDER $MASK_FOLDER
+  source pipelines/bst_optibet ${img%.*.*} $T1_FOLDER $MASK_FOLDER
 
   echo "  * Calling AFNI brain excration pipeline"
-  source pipelines/bst_afni $img $T1_FOLDER $MASK_FOLDER
+  source pipelines/bst_afni ${img%.*.*} $T1_FOLDER $MASK_FOLDER
 done

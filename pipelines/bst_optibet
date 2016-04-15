@@ -14,10 +14,10 @@ USE_AFNI=`cat config/config_var.conf | grep USE_AFNI= | cut -c10-11`
 
 #Apply optiBET
 if [[ $USE_AFNI == "Y" ]]; then
-  optiBET.sh -i $T1_FOLDER/$T1_IMAGE -a
+  optiBET.sh -i $T1_FOLDER/${T1_IMAGE}.nii.gz -a
   rm $T1_FOLDER/${T1_IMAGE}_optiBET_brain.nii.gz
 else
-  optiBET.sh -i $T1_FOLDER/$T1_IMAGE
+  optiBET.sh -i $T1_FOLDER/${T1_IMAGE}.nii.gz
   rm $T1_FOLDER/${T1_IMAGE}_optiBET_brain.nii.gz
 fi
 

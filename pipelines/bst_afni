@@ -9,7 +9,7 @@ T1_FOLDER=$2
 MASK_FOLDER=$3
 
 #Apply AFNI
-3dSkullStrip -input $T1_FOLDER/$T1_IMAGE
+3dSkullStrip -input $T1_FOLDER/${T1_IMAGE}.nii.gz
 3dAFNItoNIFTI $T1_FOLDER/skull_strip_out+orig.BRIK
 # Cleaning trash files
 rm $T1_FOLDER/*.BRIK $T1_FOLDER/*.HEAD
