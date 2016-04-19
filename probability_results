@@ -1,0 +1,100 @@
+#!/bin/bash
+# Script to register the original images with the MNI template and propagate the transformation on the label masks
+
+
+usage(){
+  echo "  Script to register the original images with the MNI template and propagate the transformation on the label masks."
+  # echo "    Usage: $(basename $0) [options] <T1 folder path> <Manual brain masks folder>"
+  echo "    Usage: $(basename $0) <T1 folder path> <Manual brain masks folder>"
+  echo ""
+  echo "    <T1 folder path> = Set a folder path which contains all the T1 data to the study."
+  echo "    <Manual brain masks folder> = Set a folder path which contains all the manual and automatic brain segmentation data."
+  echo ""
+  # echo "    Options:"
+  # echo "      -n      Remove neck slices on T1 images"
+  # echo "      -i      Correct inhomogeneity on T1 images"
+  # echo "      -v      Voxel intensity normalization on T1 images"
+}
+
+T1_FOLDER=$1
+MASK_FOLDER=$2
+
+if [[ $# -lt 2 ]]; then
+  usage
+  exit
+fi
+
+LIST_T1=`ls $T1_FOLDER | grep .nii.gz`
+LIST_MASKS=`ls $MASK_FOLDER | grep .nii.gz`
+
+
+for img in $LIST_T1; do
+  echo "  => Registering T1 with MNI152 - Image: $img"
+  flirt -in $T1_FOLDER/$img -ref $FSLDIR/data/standard/MNI152_T1_1mm.nii.gz -omat $T1_FOLDER/${img%.*.*}.mat
+
+  image_name=`echo ${img%.*.*}`
+  for label in `ls $MASK_FOLDER | grep $image_name`; do
+    echo "  => Applying transformation on brain masks - Mask: $label"
+    if [[ ! -d $MASK_FOLDER/probability_mask ]]; then
+      mkdir $MASK_FOLDER/probability_mask
+    fi
+    flirt -in $MASK_FOLDER/$label -ref $FSLDIR/data/standard/MNI152_T1_1mm.nii.gz -applyxfm -init $T1_FOLDER/${img%.*.*}.mat -out $MASK_FOLDER/probability_mask/${label%.*.*}_MNI.nii.gz
+    fslmaths $MASK_FOLDER/probability_mask/${label%.*.*}_MNI.nii.gz -bin $MASK_FOLDER/probability_mask/${label%.*.*}_MNI.nii.gz
+  done
+done
+
+echo "    => Creating probability mask from all the masks..."
+echo "      --> AFNI probability mask"
+count=0
+for mask in `ls $MASK_FOLDER/probability_mask | grep _bm_afni`; do
+  if [[ $count -eq 0 ]]; then
+    fslmaths $MASK_FOLDER/probability_mask/$mask -add $MASK_FOLDER/probability_mask/$mask -div 2.0 $MASK_FOLDER/probability_mask/prob_mask_AFNI.nii.gz
+  else
+    fslmaths $MASK_FOLDER/probability_mask/prob_mask_AFNI.nii.gz -add $MASK_FOLDER/probability_mask/$mask $MASK_FOLDER/probability_mask/prob_mask_AFNI.nii.gz
+  fi
+  ((count++))
+done
+
+echo "      --> FSL-BET probability mask"
+count=0
+for mask in `ls $MASK_FOLDER/probability_mask | grep _bm_bet`; do
+  if [[ $count -eq 0 ]]; then
+    fslmaths $MASK_FOLDER/probability_mask/$mask -add $MASK_FOLDER/probability_mask/$mask -div 2.0 $MASK_FOLDER/probability_mask/prob_mask_BET.nii.gz
+  else
+    fslmaths $MASK_FOLDER/probability_mask/prob_mask_BET.nii.gz -add $MASK_FOLDER/probability_mask/$mask $MASK_FOLDER/probability_mask/prob_mask_BET.nii.gz
+  fi
+  ((count++))
+done
+
+echo "      --> optiBET probability mask"
+count=0
+for mask in `ls $MASK_FOLDER/probability_mask | grep _bm_optiBET`; do
+  if [[ $count -eq 0 ]]; then
+    fslmaths $MASK_FOLDER/probability_mask/$mask -add $MASK_FOLDER/probability_mask/$mask -div 2.0 $MASK_FOLDER/probability_mask/prob_mask_optiBET.nii.gz
+  else
+    fslmaths $MASK_FOLDER/probability_mask/prob_mask_optiBET.nii.gz -add $MASK_FOLDER/probability_mask/$mask $MASK_FOLDER/probability_mask/prob_mask_optiBET.nii.gz
+  fi
+  ((count++))
+done
+
+echo "      --> FreeSurfer probability mask"
+count=0
+for mask in `ls $MASK_FOLDER/probability_mask | grep _bm_fs`; do
+  if [[ $count -eq 0 ]]; then
+    fslmaths $MASK_FOLDER/probability_mask/$mask -add $MASK_FOLDER/probability_mask/$mask -div 2.0 $MASK_FOLDER/probability_mask/prob_mask_FreeSurfer.nii.gz
+  else
+    fslmaths $MASK_FOLDER/probability_mask/prob_mask_FreeSurfer.nii.gz -add $MASK_FOLDER/probability_mask/$mask $MASK_FOLDER/probability_mask/prob_mask_FreeSurfer.nii.gz
+  fi
+  ((count++))
+done
+
+echo "      --> ROBEX probability mask"
+count=0
+for mask in `ls $MASK_FOLDER/probability_mask | grep _bm_robex`; do
+  if [[ $count -eq 0 ]]; then
+    fslmaths $MASK_FOLDER/probability_mask/$mask -add $MASK_FOLDER/probability_mask/$mask -div 2.0 $MASK_FOLDER/probability_mask/prob_mask_ROBEX.nii.gz
+  else
+    fslmaths $MASK_FOLDER/probability_mask/prob_mask_ROBEX.nii.gz -add $MASK_FOLDER/probability_mask/$mask $MASK_FOLDER/probability_mask/prob_mask_ROBEX.nii.gz
+  fi
+  ((count++))
+done
