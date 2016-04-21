@@ -8,8 +8,22 @@ T1_IMAGE=$1
 T1_FOLDER=$2
 MASK_FOLDER=$3
 
+# Parameters
+SHRINK_BOT=`cat config/config_var.conf | grep SHRINK_BOT= | cut -c12-17`
+SHRINK_FAC=`cat config/config_var.conf | grep SHRINK_FAC= | cut -c12-17`
+PUSH_EDGE=`cat config/config_var.conf | grep PUSH_EDGE= | cut -c11-13`
+
 #Apply AFNI
-3dSkullStrip -input $T1_FOLDER/${T1_IMAGE}.nii.gz
+if [[ "$PUSH_EDGE" == "Y" ]]; then
+  3dSkullStrip -input $T1_FOLDER/${T1_IMAGE}.nii.gz -push_to_edge
+else
+  if [[ "$SHRINK_FAC" == "" && "$SHRINK_BOT" == "" ]]; then
+    3dSkullStrip -input $T1_FOLDER/${T1_IMAGE}.nii.gz
+  else
+    3dSkullStrip -input $T1_FOLDER/${T1_IMAGE}.nii.gz -shrink_fac_bot_lim $SHRINK_BOT -shrink_fac $SHRINK_FAC
+  fi
+fi
+
 3dAFNItoNIFTI $T1_FOLDER/skull_strip_out+orig.BRIK
 # Cleaning trash files
 rm $T1_FOLDER/*.BRIK $T1_FOLDER/*.HEAD
@@ -20,4 +34,8 @@ gzip -9 skull_strip_out.nii
 
 #Copying the brain mask to the MASK_FOLDER
 cp $T1_FOLDER/skull_strip_out.nii.gz $MASK_FOLDER/
-mv $MASK_FOLDER/skull_strip_out.nii.gz $MASK_FOLDER/${T1_IMAGE}_bm_afni.nii.gz
+if [[ "$PUSH_EDGE" == "Y" ]]; then
+  mv $MASK_FOLDER/skull_strip_out.nii.gz $MASK_FOLDER/${T1_IMAGE}_bm_afni_pushEdge${PUSH_EDGE}.nii.gz
+else
+  mv $MASK_FOLDER/skull_strip_out.nii.gz $MASK_FOLDER/${T1_IMAGE}_bm_afni_pushEdge${PUSH_EDGE}_shrFact${SHRINK_FAC}_shrBot${SHRINK_BOT}.nii.gz
+fi
