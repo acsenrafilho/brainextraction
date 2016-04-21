@@ -1,0 +1,32 @@
+#!/bin/bash
+#FSL-BET brain excration pipeline
+
+#Options variables:
+# -B
+# -f
+
+T1_IMAGE=$1
+T1_FOLDER=$2
+MASK_FOLDER=$3
+
+#FSL-BET parameters
+F_THR=`cat config/config_var.conf | grep F_THR= | cut -c7-11`
+NECK_CLEAN=`cat config/config_var.conf | grep NECK_CLEAN= | cut -c12-13`
+EYE_CLEAN=`cat config/config_var.conf | grep EYE_CLEAN= | cut -c11-12`
+
+#Apply FSL-BET
+if [[ $NECK_CLEAN == "N" && $EYE_CLEAN == "N" ]]; then
+  bet $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN} -f $F_THR
+elif [[ $NECK_CLEAN == "Y" && $EYE_CLEAN == "N" ]]; then
+  bet $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN} -f $F_THR -B
+elif [[ $NECK_CLEAN == "N" && $EYE_CLEAN == "Y" ]]; then
+  bet $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN} -f $F_THR -S
+elif [[ $NECK_CLEAN == "Y" && $EYE_CLEAN == "Y" ]]; then
+  bet $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN} -f $F_THR -S -B
+fi
+
+#Transforming the output as binary brain mask
+fslmaths $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}.nii.gz
+
+#Copying the brain mask to the MASK_FOLDER
+mv $T1_FOLDER/${T1_IMAGE}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}.nii.gz $MASK_FOLDER/
