@@ -12,15 +12,17 @@ MASK_FOLDER=$3
 # Parameters
 USE_AFNI=`cat config/config_var.conf | grep USE_AFNI= | cut -c10-11`
 
+cd $T1_FOLDER
 #Apply optiBET
 if [[ $USE_AFNI == "Y" ]]; then
-  optiBET.sh -i $T1_FOLDER/${T1_IMAGE}.nii.gz -a
-  rm $T1_FOLDER/${T1_IMAGE}_optiBET_brain.nii.gz
+  optiBET.sh -i ${T1_IMAGE}.nii.gz -a
+  rm ${T1_IMAGE}_optiBET_brain.nii.gz
 else
-  optiBET.sh -i $T1_FOLDER/${T1_IMAGE}.nii.gz
-  rm $T1_FOLDER/${T1_IMAGE}_optiBET_brain.nii.gz
+  optiBET.sh -i ${T1_IMAGE}.nii.gz
+  rm ${T1_IMAGE}_optiBET_brain.nii.gz
 fi
 
 #Moving the brain mask to the MASK_FOLDER
-mv $T1_FOLDER/${T1_IMAGE}_optiBET_brain_mask.nii.gz $MASK_FOLDER/
+mv ${T1_IMAGE}_optiBET_brain_mask.nii.gz $MASK_FOLDER/
 mv $MASK_FOLDER/${T1_IMAGE}_optiBET_brain_mask.nii.gz $MASK_FOLDER/${T1_IMAGE}_bm_optiBET_afni${USE_AFNI}.nii.gz
+cd ~/Documents/brainextraction
