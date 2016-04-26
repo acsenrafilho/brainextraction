@@ -20,34 +20,46 @@ if [[ $# -lt 3 ]]; then
   exit
 fi
 
-LIST_T1_NAMES=`ls T1_FOLDER | grep .nii.gz`
-LIST_MASKTYPES=( "fs" "bet" "optiBET" "robex" "afni" )
+LIST_T1_NAMES=`ls $T1_FOLDER | grep .nii.gz`
+if [[ ! -d $T1_FOLDER/FreeSurfer-recon-all ]]; then
+  mkdir $T1_FOLDER/FreeSurfer-recon-all
+fi
 
+#Freesurfer Analysis
 for t1Image in $LIST_T1_NAMES; do
-   for maskType in $LIST_MASKTYPES; do
-      mkdir $T1_FOLDER/${t1Image%.*.*}_$maskType
-      FS_FOLDER=$T1_FOLDER/${t1Image%.*.*}_$maskType
+  #  for maskType in $LIST_MASKTYPES; do
+    #  MASKTYPES=`ls $MASK_FOLDER | grep .nii.gz | grep `echo ${t1Image%.*.*}`_autorecon1_corr_bm_fs`
+      # mkdir $T1_FOLDER/${t1Image%.*.*}_$maskType
+      # FS_FOLDER=$T1_FOLDER/${t1Image%.*.*}_$maskType
 
       # Run recon-all FreeSurfer
-      export SUBJECTS_DIR=$FS_FOLDER
-
-      #Extract brain from image - Freesurfer
-      if [[ $maskType ]]; then
-      # Parameters
+      # export SUBJECTS_DIR=$FS_FOLDER
+      export SUBJECTS_DIR=$T1_FOLDER/FreeSurfer-recon-all
+      # WHOLE_T1_FOLDER=$T1_FOLDER/FreeSurfer-recon-all/${t1Image%.*.*}/mri/
+      # cp $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/backup_T1.mgz
       ATLAS=`cat config/config_var.conf | grep ATLAS= | cut -c7-9`
       FLOOD=`cat config/config_var.conf | grep FLOOD= | cut -c7-11`
-      MASK_IMAGE=$MASK_FOLDER/${img}_autorecon1_corr_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
-      WHOLE_T1_FOLDER=$T1_FOLDER/pre-proc/${img}/mri/
-      mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
-      gzip -9 $WHOLE_T1_FOLDER/T1.nii
+      MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+      #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
+      recon-all -s ${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
+      #Extract brain from image - Freesurfer
+      # if [[ $maskType == "fs" ]]; then
+        # Parameters
 
-      #Effectivelly performing the skull strip on T1 image
-      fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/T1_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
-      ####CHECK FROM HERE
-   
 
-      #Run the rest of freesurfer pipeline
-      recon-all -s $img -i /home/k1510868/Pictures/T1BrainExtraction/T1_Francisco/T1wMRI/pre-proc/${img}_autorecon1_corr.nii.gz -autorecon2
-   done
+        # Performing the manual skull strip - Using: FreeSurfer brain mask
+        WHOLE_T1_FOLDER=$T1_FOLDER/FreeSurfer-recon-all/${t1Image%.*.*}/mri/
+        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
+        gzip -9 $WHOLE_T1_FOLDER/T1.nii
+        #Effectivelly performing the skull strip on T1 image
+        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/T1_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+        rm $WHOLE_T1_FOLDER/T1.mgz
+        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/T1.nii $WHOLE_T1_FOLDER/T1.mgz
+        ####CHECK FROM HERE
+
+        #Running the rest of FreeSurfer pipeline
+        recon-all -s ${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD} -i $WHOLE_T1_FOLDER/T1.mgz -autorecon2
+      # fi
+
+  #  done
 done
-
