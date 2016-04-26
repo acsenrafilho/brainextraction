@@ -1,0 +1,53 @@
+#!/bin/bash
+# Script to finish the rest of FreeSurfer pipeline
+
+usage(){
+  echo "  Script to finish the rest of FreeSurfer pipeline."
+  echo "    Usage: $(basename $0) <T1 folder path> <Brain masks folder> <Output FreeSurfer folder name (SUBJECTS_DIR)>"
+  echo ""
+  echo "    <T1 folder path> = Set a folder path which contains all the T1 data to the study."
+  echo "    <Manual brain masks folder> = Set a folder path which contains all the manual brain segmentation data to the study."
+  #echo "    <Output FreeSurfer folder name (SUBJECTS_DIR)> = Set a folder name where the FreeSurfer will put the output parcellations. This folder will be placed into the T1 folder path directory."
+  echo ""
+}
+
+T1_FOLDER=$1
+MASK_FOLDER=$2
+#SUBJECTS_FOLDER_DIR=$3
+
+if [[ $# -lt 3 ]]; then
+  usage
+  exit
+fi
+
+LIST_T1_NAMES=`ls T1_FOLDER | grep .nii.gz`
+LIST_MASKTYPES=( "fs" "bet" "optiBET" "robex" "afni" )
+
+for t1Image in $LIST_T1_NAMES; do
+   for maskType in $LIST_MASKTYPES; do
+      mkdir $T1_FOLDER/${t1Image%.*.*}_$maskType
+      FS_FOLDER=$T1_FOLDER/${t1Image%.*.*}_$maskType
+
+      # Run recon-all FreeSurfer
+      export SUBJECTS_DIR=$FS_FOLDER
+
+      #Extract brain from image - Freesurfer
+      if [[ $maskType ]]; then
+      # Parameters
+      ATLAS=`cat config/config_var.conf | grep ATLAS= | cut -c7-9`
+      FLOOD=`cat config/config_var.conf | grep FLOOD= | cut -c7-11`
+      MASK_IMAGE=$MASK_FOLDER/${img}_autorecon1_corr_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+      WHOLE_T1_FOLDER=$T1_FOLDER/pre-proc/${img}/mri/
+      mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
+      gzip -9 $WHOLE_T1_FOLDER/T1.nii
+
+      #Effectivelly performing the skull strip on T1 image
+      fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/T1_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+      ####CHECK FROM HERE
+   
+
+      #Run the rest of freesurfer pipeline
+      recon-all -s $img -i /home/k1510868/Pictures/T1BrainExtraction/T1_Francisco/T1wMRI/pre-proc/${img}_autorecon1_corr.nii.gz -autorecon2
+   done
+done
+

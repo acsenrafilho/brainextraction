@@ -16,4 +16,4 @@ fslmaths $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_r
 
 #Moving the brain mask to the MASK_FOLDER
 mv $T1_FOLDER/${T1_IMAGE}_bm_robex.nii.gz $MASK_FOLDER/
-cd ~/Documents/GitProjects/brainextraction
+cd ~/Documents/brainextraction

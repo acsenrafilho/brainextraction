@@ -24,7 +24,7 @@ else
 fi
 
 #Transforming the output as binary brain mask
-fslmaths $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz -bin ${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+fslmaths $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
 
 #Copying the brain mask to the MASK_FOLDER
 mv $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz $MASK_FOLDER/

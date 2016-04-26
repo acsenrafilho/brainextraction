@@ -3,12 +3,16 @@
 
 T1_IMAGE=$1
 PRE_FOLDER=$2
-T1_FOLDER=$3
 
 echo "  * Starting the T1 preparation - Image: $T1_IMAGE"
-echo "      --> Step 1: Neck slices removal"
+echo "      --> Step 1: Applying -autorecon1 from FreeSurfer pipeline"
+recon-all -s ${T1_IMAGE%.*.*} -i $PRE_FOLDER/$T1_IMAGE -autorecon1 -noskullstrip
+rm $PRE_FOLDER/$T1_IMAGE
 
-echo "      --> Step 2: Image inhomogeneity correction"
-# nu_correct - performs intensity normalization for intensity based segmentation.
-echo "      --> Step 3: Voxel intensity normalization"
-# mri_normalize - converts orig or nu volume into normalized white matter volume
+
+echo "      --> Step 2: Copy and converting corrected image to image folder"
+cp $PRE_FOLDER/${T1_IMAGE%.*.*}/mri/T1.mgz $PRE_FOLDER/
+mri_convert -it mgz -ot nii $PRE_FOLDER/T1.mgz $PRE_FOLDER/T1.nii
+gzip -9 $PRE_FOLDER/T1.nii
+rm $PRE_FOLDER/T1.mgz
+mv $PRE_FOLDER/T1.nii.gz $PRE_FOLDER/${T1_IMAGE%.*.*}_autorecon1_corr.nii.gz

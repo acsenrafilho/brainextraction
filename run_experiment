@@ -28,36 +28,56 @@ if [[ $3 == "Y" ]]; then
   DO_PREPROCESSING="Y"
 fi
 
+mkdir $T1_FOLDER/pre-proc
+PRE_FOLDER=$T1_FOLDER/pre-proc
+
+export SUBJECTS_DIR=$PRE_FOLDER
+
+for img in `ls $T1_FOLDER | grep .nii.gz`; do
+    #Coping image to pre-proc folder
+    cp $T1_FOLDER/$img $PRE_FOLDER
+done
+
 for img in `ls $T1_FOLDER | grep .nii.gz`; do
 
     echo "  ** Study started - Image: $img"
     #Preparing the T1 data
   if [[ "$DO_PREPROCESSING" == "Y" ]]; then
-    if [[ -d "ls $T1_FOLDER/pre-proc" ]]; then
-      rm -R $T1_FOLDER/pre-proc
-      mkdir $T1_FOLDER/pre-proc
-    else
-      mkdir $T1_FOLDER/pre-proc
-    fi
-    PRE_FOLDER=$T1_FOLDER/pre-proc
+	echo "    *** Applying FreeSurfer autorecon1 pre processing - Image: $img"
 
-    #Coping image to pre-proc folder
-    cp $T1_FOLDER/$img $PRE_FOLDER
-    source t1_preparation $img $PRE_FOLDER $T1_FOLDER
+    source t1_preparation $img $PRE_FOLDER 
+
+    echo "  * Calling FreeSurfer brain excration pipeline"
+    source pipelines/bst_freesurfer ${img%.*.*}_autorecon1_corr $PRE_FOLDER $MASK_FOLDER
+
+    echo "  * Calling FSL-BET brain excration pipeline"
+    source pipelines/bst_fsl-bet ${img%.*.*}_autorecon1_corr $PRE_FOLDER $MASK_FOLDER
+
+    echo "  * Calling optiBET brain excration pipeline"
+    source pipelines/bst_optibet ${img%.*.*}_autorecon1_corr $PRE_FOLDER $MASK_FOLDER
+
+    echo "  * Calling AFNI brain excration pipeline"
+    source pipelines/bst_afni ${img%.*.*}_autorecon1_corr $PRE_FOLDER $MASK_FOLDER
+
+    echo "  * Calling ROBEX brain excration pipeline"
+    source pipelines/bst_robex ${img%.*.*}_autorecon1_corr $PRE_FOLDER $MASK_FOLDER
+
+  else
+    echo "  * Calling FreeSurfer brain excration pipeline"
+    source pipelines/bst_freesurfer ${img%.*.*} $T1_FOLDER $MASK_FOLDER
+
+    echo "  * Calling FSL-BET brain excration pipeline"
+    source pipelines/bst_fsl-bet ${img%.*.*} $T1_FOLDER $MASK_FOLDER
+
+    echo "  * Calling optiBET brain excration pipeline"
+    source pipelines/bst_optibet ${img%.*.*} $T1_FOLDER $MASK_FOLDER
+
+    echo "  * Calling AFNI brain excration pipeline"
+    source pipelines/bst_afni ${img%.*.*} $T1_FOLDER $MASK_FOLDER
+
+    echo "  * Calling ROBEX brain excration pipeline"
+    source pipelines/bst_robex ${img%.*.*} $T1_FOLDER $MASK_FOLDER
   fi
 
-  echo "  * Calling FreeSurfer brain excration pipeline"
-  source pipelines/bst_freesurfer ${img%.*.*} $T1_FOLDER $MASK_FOLDER
-
-  echo "  * Calling FSL-BET brain excration pipeline"
-  source pipelines/bst_fsl-bet ${img%.*.*} $T1_FOLDER $MASK_FOLDER
-
-  echo "  * Calling optiBET brain excration pipeline"
-  source pipelines/bst_optibet ${img%.*.*} $T1_FOLDER $MASK_FOLDER
-
-  echo "  * Calling AFNI brain excration pipeline"
-  source pipelines/bst_afni ${img%.*.*} $T1_FOLDER $MASK_FOLDER
-
-  echo "  * Calling ROBEX brain excration pipeline"
-  source pipelines/bst_robex ${img%.*.*} $T1_FOLDER $MASK_FOLDER
+  
 done
