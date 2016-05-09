@@ -30,6 +30,32 @@ for subj in `ls $FS_FOLDER | grep -v .nii.gz`; do
       mkdir $OUTPUT_FOLDER/aseg
     fi
 
+      brainSeg=`cat $ASEG_TABLE | grep BrainSeg, | awk '{print $8}'`
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_BrainSeg.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_BrainSeg.txt
+      echo ${brainSeg%.*} >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_BrainSeg.txt
+      lhCortex=`cat $ASEG_TABLE | grep lhCortex, | awk '{print $11}'`
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_lhCortex.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_lhCortex.txt
+      echo ${lhCortex%.*} >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_lhCortex.txt
+      rhCortex=`cat $ASEG_TABLE | grep rhCortex, | awk '{print $11}'`
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_rhCortex.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_rhCortex.txt
+      echo ${rhCortex%.*} >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_rhCortex.txt
+      Cortex=`cat $ASEG_TABLE | grep "Measure Cortex," | awk '{print $10}'`
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_Cortex.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_Cortex.txt
+      echo ${Cortex%.*} >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_Cortex.txt
+      lhSurfaceHoles=`cat $ASEG_TABLE | grep lhSurfaceHoles, | awk '{print $15}'`
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_lhSurfaceHoles.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_lhSurfaceHoles.txt
+      echo ${lhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_lhSurfaceHoles.txt
+      rhSurfaceHoles=`cat $ASEG_TABLE | grep rhSurfaceHoles, | awk '{print $15}'`
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_rhSurfaceHoles.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_rhSurfaceHoles.txt
+      echo ${rhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/AFNI_aseg_Global_rhSurfaceHoles.txt
+
+
     for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
       printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_${label}.txt
       printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_${label}.txt
@@ -67,6 +93,31 @@ for subj in `ls $FS_FOLDER | grep -v .nii.gz`; do
     if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
       mkdir $OUTPUT_FOLDER/aseg
     fi
+
+    brainSeg=`cat $ASEG_TABLE | grep BrainSeg, | awk '{print $8}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_BrainSeg.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_BrainSeg.txt
+    echo ${brainSeg%.*} >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_BrainSeg.txt
+    lhCortex=`cat $ASEG_TABLE | grep lhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_lhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_lhCortex.txt
+    echo ${lhCortex%.*} >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_lhCortex.txt
+    rhCortex=`cat $ASEG_TABLE | grep rhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_rhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_rhCortex.txt
+    echo ${rhCortex%.*} >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_rhCortex.txt
+    Cortex=`cat $ASEG_TABLE | grep "Measure Cortex," | awk '{print $10}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_Cortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_Cortex.txt
+    echo ${Cortex%.*} >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_Cortex.txt
+    lhSurfaceHoles=`cat $ASEG_TABLE | grep lhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_lhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_lhSurfaceHoles.txt
+    echo ${lhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_lhSurfaceHoles.txt
+    rhSurfaceHoles=`cat $ASEG_TABLE | grep rhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_rhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_rhSurfaceHoles.txt
+    echo ${rhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/BET_aseg_Global_rhSurfaceHoles.txt
 
     for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
       printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_${label}.txt
@@ -106,6 +157,31 @@ for subj in `ls $FS_FOLDER | grep -v .nii.gz`; do
       mkdir $OUTPUT_FOLDER/aseg
     fi
 
+    brainSeg=`cat $ASEG_TABLE | grep BrainSeg, | awk '{print $8}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_BrainSeg.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_BrainSeg.txt
+    echo ${brainSeg%.*} >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_BrainSeg.txt
+    lhCortex=`cat $ASEG_TABLE | grep lhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_lhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_lhCortex.txt
+    echo ${lhCortex%.*} >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_lhCortex.txt
+    rhCortex=`cat $ASEG_TABLE | grep rhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_rhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_rhCortex.txt
+    echo ${rhCortex%.*} >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_rhCortex.txt
+    Cortex=`cat $ASEG_TABLE | grep "Measure Cortex," | awk '{print $10}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_Cortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_Cortex.txt
+    echo ${Cortex%.*} >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_Cortex.txt
+    lhSurfaceHoles=`cat $ASEG_TABLE | grep lhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_lhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_lhSurfaceHoles.txt
+    echo ${lhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_lhSurfaceHoles.txt
+    rhSurfaceHoles=`cat $ASEG_TABLE | grep rhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_rhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_rhSurfaceHoles.txt
+    echo ${rhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/optiBET_aseg_Global_rhSurfaceHoles.txt
+
     for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
       printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_${label}.txt
       printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_${label}.txt
@@ -144,6 +220,31 @@ for subj in `ls $FS_FOLDER | grep -v .nii.gz`; do
       mkdir $OUTPUT_FOLDER/aseg
     fi
 
+    brainSeg=`cat $ASEG_TABLE | grep BrainSeg, | awk '{print $8}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_BrainSeg.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_BrainSeg.txt
+    echo ${brainSeg%.*} >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_BrainSeg.txt
+    lhCortex=`cat $ASEG_TABLE | grep lhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_lhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_lhCortex.txt
+    echo ${lhCortex%.*} >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_lhCortex.txt
+    rhCortex=`cat $ASEG_TABLE | grep rhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_rhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_rhCortex.txt
+    echo ${rhCortex%.*} >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_rhCortex.txt
+    Cortex=`cat $ASEG_TABLE | grep "Measure Cortex," | awk '{print $10}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_Cortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_Cortex.txt
+    echo ${Cortex%.*} >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_Cortex.txt
+    lhSurfaceHoles=`cat $ASEG_TABLE | grep lhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_lhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_lhSurfaceHoles.txt
+    echo ${lhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_lhSurfaceHoles.txt
+    rhSurfaceHoles=`cat $ASEG_TABLE | grep rhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_rhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_rhSurfaceHoles.txt
+    echo ${rhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_Global_rhSurfaceHoles.txt
+
     for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
       printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_${label}.txt
       cat $ASEG_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_${label}.txt
@@ -180,6 +281,31 @@ for subj in `ls $FS_FOLDER | grep -v .nii.gz`; do
     if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
       mkdir $OUTPUT_FOLDER/aseg
     fi
+
+    brainSeg=`cat $ASEG_TABLE | grep BrainSeg, | awk '{print $8}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_BrainSeg.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_BrainSeg.txt
+    echo ${brainSeg%.*} >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_BrainSeg.txt
+    lhCortex=`cat $ASEG_TABLE | grep lhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_lhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_lhCortex.txt
+    echo ${lhCortex%.*} >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_lhCortex.txt
+    rhCortex=`cat $ASEG_TABLE | grep rhCortex, | awk '{print $11}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_rhCortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_rhCortex.txt
+    echo ${rhCortex%.*} >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_rhCortex.txt
+    Cortex=`cat $ASEG_TABLE | grep "Measure Cortex," | awk '{print $10}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_Cortex.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_Cortex.txt
+    echo ${Cortex%.*} >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_Cortex.txt
+    lhSurfaceHoles=`cat $ASEG_TABLE | grep lhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_lhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_lhSurfaceHoles.txt
+    echo ${lhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_lhSurfaceHoles.txt
+    rhSurfaceHoles=`cat $ASEG_TABLE | grep rhSurfaceHoles, | awk '{print $15}'`
+    printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_rhSurfaceHoles.txt
+    printf " " >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_rhSurfaceHoles.txt
+    echo ${rhSurfaceHoles%.*} >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_Global_rhSurfaceHoles.txt
 
     for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
       printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_${label}.txt
