@@ -1,0 +1,213 @@
+#/bin/bash
+#Script to organize the stats folder (some stat files) in order to be easy to apply statistical tests over each ROI.
+
+usage(){
+  echo "  Script to organize the stats folder (some stat files) in order to be easy to apply statistical tests over each ROI."
+  # echo "    Usage: $(basename $0) [options] <T1 folder path> <Manual brain masks folder>"
+  echo "    Usage: $(basename $0) <Freesurfer main output folder path> <Output folder path>"
+  echo ""
+  echo "    <Freesurfer main output folder path> = Set a folder path which contains the Freesurfer folder output (contains the subject folders)."
+  echo "    <Output folder path> = Set an output folder path which will be saved the organized tables"
+  echo ""
+}
+
+FS_FOLDER=$1
+OUTPUT_FOLDER=$2
+
+if [[ $# -lt 2 ]]; then
+  usage
+  exit
+fi
+
+#Iterate over the subjects folders
+for subj in `ls $FS_FOLDER | grep -v .nii.gz`; do
+  # Create AFNI stat results
+  if [[ "`echo $subj | grep bm_afni`" != "" ]]; then
+    echo "Reading results from AFNI - $subj"
+    echo "  --> Extracting stats/aseg.stats"
+    ASEG_TABLE=$FS_FOLDER/$subj/stats/aseg.stats
+    if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
+      mkdir $OUTPUT_FOLDER/aseg
+    fi
+
+    for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
+      printf $subj >> $OUTPUT_FOLDER/aseg/AFNI_aseg_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/AFNI_aseg_${label}.txt
+      cat $ASEG_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/aseg/AFNI_aseg_${label}.txt
+    done
+
+    echo "  --> Extracting stats/lh.aparc.stats"
+    LH_PARC_TABLE=$FS_FOLDER/$subj/stats/lh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/lh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/lh.aparc
+    fi
+
+    for label in `cat $LH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/lh.aparc/AFNI_lh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/lh.aparc/AFNI_lh_parc_${label}.txt
+      cat $LH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/lh.aparc/AFNI_lh_parc_${label}.txt
+    done
+
+    echo "  --> Extracting stats/rh.aparc.stats"
+    RH_PARC_TABLE=$FS_FOLDER/$subj/stats/rh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/rh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/rh.aparc
+    fi
+
+    for label in `cat $RH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/rh.aparc/AFNI_rh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/rh.aparc/AFNI_rh_parc_${label}.txt
+      cat $RH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/rh.aparc/AFNI_rh_parc_${label}.txt
+    done
+
+  elif [[ "`echo $subj | grep bm_bet`" != "" ]]; then
+    echo "Reading results from FSL-BET - $subj"
+    echo "  --> Extracting stats/aseg.stats"
+    ASEG_TABLE=$FS_FOLDER/$subj/stats/aseg.stats
+    if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
+      mkdir $OUTPUT_FOLDER/aseg
+    fi
+
+    for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
+      printf $subj >> $OUTPUT_FOLDER/aseg/BET_aseg_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/BET_aseg_${label}.txt
+      cat $ASEG_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/aseg/BET_aseg_${label}.txt
+    done
+
+    echo "  --> Extracting stats/lh.aparc.stats"
+    LH_PARC_TABLE=$FS_FOLDER/$subj/stats/lh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/lh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/lh.aparc
+    fi
+
+    for label in `cat $LH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/lh.aparc/BET_lh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/lh.aparc/BET_lh_parc_${label}.txt
+      cat $LH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/lh.aparc/BET_lh_parc_${label}.txt
+    done
+
+    echo "  --> Extracting stats/rh.aparc.stats"
+    RH_PARC_TABLE=$FS_FOLDER/$subj/stats/rh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/rh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/rh.aparc
+    fi
+
+    for label in `cat $RH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/rh.aparc/BET_rh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/rh.aparc/BET_rh_parc_${label}.txt
+      cat $RH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/rh.aparc/BET_rh_parc_${label}.txt
+    done
+
+  elif [[ "`echo $subj | grep bm_optiBET`" != "" ]]; then
+    echo "Reading results from optiBET - $subj"
+    echo "  --> Extracting stats/aseg.stats"
+    ASEG_TABLE=$FS_FOLDER/$subj/stats/aseg.stats
+    if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
+      mkdir $OUTPUT_FOLDER/aseg
+    fi
+
+    for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
+      printf $subj >> $OUTPUT_FOLDER/aseg/optiBET_aseg_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/aseg/optiBET_aseg_${label}.txt
+      cat $ASEG_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/aseg/optiBET_aseg_${label}.txt
+    done
+
+    echo "  --> Extracting stats/lh.aparc.stats"
+    LH_PARC_TABLE=$FS_FOLDER/$subj/stats/lh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/lh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/lh.aparc
+    fi
+
+    for label in `cat $LH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/lh.aparc/optiBET_lh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/lh.aparc/optiBET_lh_parc_${label}.txt
+      cat $LH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/lh.aparc/optiBET_lh_parc_${label}.txt
+    done
+
+    echo "  --> Extracting stats/rh.aparc.stats"
+    RH_PARC_TABLE=$FS_FOLDER/$subj/stats/rh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/rh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/rh.aparc
+    fi
+
+    for label in `cat $RH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/rh.aparc/optiBET_rh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/rh.aparc/optiBET_rh_parc_${label}.txt
+      cat $RH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/rh.aparc/optiBET_rh_parc_${label}.txt
+    done
+
+  elif [[ "`echo $subj | grep bm_fs`" != "" ]]; then
+    echo "Reading results from optiBET - $subj"
+    echo "  --> Extracting stats/aseg.stats"
+    ASEG_TABLE=$FS_FOLDER/$subj/stats/aseg.stats
+    if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
+      mkdir $OUTPUT_FOLDER/aseg
+    fi
+
+    for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
+      printf $subj >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_${label}.txt
+      cat $ASEG_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/aseg/Freesurfer_aseg_${label}.txt
+    done
+
+    echo "  --> Extracting stats/lh.aparc.stats"
+    LH_PARC_TABLE=$FS_FOLDER/$subj/stats/lh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/lh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/lh.aparc
+    fi
+
+    for label in `cat $LH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/lh.aparc/Freesurfer_lh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/lh.aparc/Freesurfer_lh_parc_${label}.txt
+      cat $LH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/lh.aparc/Freesurfer_lh_parc_${label}.txt
+    done
+
+    echo "  --> Extracting stats/rh.aparc.stats"
+    RH_PARC_TABLE=$FS_FOLDER/$subj/stats/rh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/rh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/rh.aparc
+    fi
+
+    for label in `cat $RH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/rh.aparc/Freesurfer_rh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/rh.aparc/Freesurfer_rh_parc_${label}.txt
+      cat $RH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/rh.aparc/Freesurfer_rh_parc_${label}.txt
+    done
+
+  elif [[ "`echo $subj | grep bm_robex`" != "" ]]; then
+    echo "Reading results from ROBEX - $subj"
+    echo "  --> Extracting stats/aseg.stats"
+    ASEG_TABLE=$FS_FOLDER/$subj/stats/aseg.stats
+    if [[ ! -d $OUTPUT_FOLDER/aseg ]]; then
+      mkdir $OUTPUT_FOLDER/aseg
+    fi
+
+    for label in `cat $ASEG_TABLE | grep -v '#' | awk '{print $5}'`; do
+      printf $subj >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_${label}.txt
+      cat $ASEG_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/aseg/ROBEX_aseg_${label}.txt
+    done
+
+    echo "  --> Extracting stats/lh.aparc.stats"
+    LH_PARC_TABLE=$FS_FOLDER/$subj/stats/lh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/lh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/lh.aparc
+    fi
+
+    for label in `cat $LH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/lh.aparc/ROBEX_lh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/lh.aparc/ROBEX_lh_parc_${label}.txt
+      cat $LH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/lh.aparc/ROBEX_lh_parc_${label}.txt
+    done
+
+    echo "  --> Extracting stats/rh.aparc.stats"
+    RH_PARC_TABLE=$FS_FOLDER/$subj/stats/rh.aparc.stats
+    if [[ ! -d $OUTPUT_FOLDER/rh.aparc ]]; then
+      mkdir $OUTPUT_FOLDER/rh.aparc
+    fi
+
+    for label in `cat $RH_PARC_TABLE | grep -v '#' | awk '{print $1}'`; do
+      printf $subj >> $OUTPUT_FOLDER/rh.aparc/ROBEX_rh_parc_${label}.txt
+      printf " " >> $OUTPUT_FOLDER/rh.aparc/ROBEX_rh_parc_${label}.txt
+      cat $RH_PARC_TABLE | grep $label | awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}' >> $OUTPUT_FOLDER/rh.aparc/ROBEX_rh_parc_${label}.txt
+    done
+  fi
+done
