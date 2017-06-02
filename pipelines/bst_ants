@@ -1,0 +1,12 @@
+#!/bin/bash
+#ANTs brain excration pipeline
+
+T1_IMAGE=$1
+T1_FOLDER=$2
+MASK_FOLDER=$3
+
+BRAINTEMPLATEPATH=/home/antonio/Pictures/OASIS-Reliability/Oasis_brianTemplate
+
+#Apply ANTs
+antsBrainExtraction.sh -a $T1_FOLDER/${T1_IMAGE}.nii.gz -e $BRAINTEMPLATEPATH/T_template0.nii.gz -m $BRAINTEMPLATEPATH/T_template0_BrainCerebellumProbabilityMask.nii.gz -f $BRAINTEMPLATEPATH/T_template0_BrainCerebellumRegistrationMask.nii.gz -o $MASK_FOLDER/${T1_IMAGE}_bm_ants
+
