@@ -3,15 +3,10 @@
 
 usage(){
   echo "  Script to organize the output XML data from the quantitative segmentation metrics."
-  # echo "    Usage: $(basename $0) [options] <T1 folder path> <Manual brain masks folder>"
-  echo "    Usage: $(basename $0) <Manual brain masks folder>"
+  echo "    Usage: $(basename $0) <Brain masks folder>"
   echo ""
-  echo "    <Manual brain masks folder> = Set a folder path which contains all the manual and automatic brain segmentation data."
+  echo "    <Brain masks folder> = Set a folder path which contains all the manual and automatic brain segmentation data."
   echo ""
-  # echo "    Options:"
-  # echo "      -n      Remove neck slices on T1 images"
-  # echo "      -i      Correct inhomogeneity on T1 images"
-  # echo "      -v      Voxel intensity normalization on T1 images"
 }
 if [[ $# -lt 1 ]]; then
   usage
@@ -26,9 +21,9 @@ LIST_MASK_AUTO=`ls $MASK_FOLDER | grep _bm`
 for ground in $LIST_T1_GROUND; do
   for mask_auto in $LIST_MASK_AUTO;do
     # echo "Ground image: $ground  -  Mask: $mask_auto"
-    if [[ `echo "${mask_auto%.*.*}" | cut -c1-15`  == `echo "${ground%.*.*}" | cut -c1-15` ]]; then
+    if [[ `echo "${mask_auto%.*.*}" | cut -c1-7`  == `echo "${ground%.*.*}" | cut -c1-7` ]]; then
           echo "Ground image: $ground  -  Mask: $mask_auto"
-      /home/antonio/Documents/EvaluateSegmentation/EvaluateSegmentation $MASK_FOLDER/$ground $MASK_FOLDER/$mask_auto -use all > $MASK_FOLDER/${mask_auto%.*.*}.txt
+      EvaluateSegmentation $MASK_FOLDER/$ground $MASK_FOLDER/$mask_auto -use all > $MASK_FOLDER/${mask_auto%.*.*}.txt
     fi
   done
 done
@@ -107,6 +102,152 @@ for file in `ls $MASK_FOLDER | grep _bm_afni | grep .txt`; do
                                   printf "\n" >> $MASK_FOLDER/segmentation_AFNI.csv
 done
 
+echo " => Organizing ANTs results..."
+printf "mask,DICE,JACRD,AUC,KAPPA,RNDIND,ADJRIND,ICCORR,VOLSMTY,MUTINF,MAHLNBS,AVGDIST,HDRFDST,VARINFO,GCOERR,PROBDST,SNSVTY,SPCFTY,PRCISON,FMEASR,ACURCY,FALLOUT" >> $MASK_FOLDER/segmentation_ANTs.csv
+printf "\n" >> $MASK_FOLDER/segmentation_ANTs.csv
+for file in `ls $MASK_FOLDER | grep _bm_ants | grep .txt`; do
+  echo "Organizing output file: $file"
+  # File name
+  printf "${file%.*}" >> $MASK_FOLDER/segmentation_ANTs.csv
+  printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+  #DICE
+  printf "`cat $MASK_FOLDER/$file | grep DICE | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+  #JACRD
+  printf "`cat $MASK_FOLDER/$file | grep JACRD | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+  #AUC
+  printf "`cat $MASK_FOLDER/$file | grep AUC | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+  #KAPPA
+  printf "`cat $MASK_FOLDER/$file | grep KAPPA | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+  #RNDIND
+  printf "`cat $MASK_FOLDER/$file | grep RNDIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+  #ADJRIND
+  printf "`cat $MASK_FOLDER/$file | grep ADJRIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+    #ICCORR
+    printf "`cat $MASK_FOLDER/$file | grep ICCORR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+      printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+      #VOLSMTY
+      printf "`cat $MASK_FOLDER/$file | grep VOLSMTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+        printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+        #MUTINF
+        printf "`cat $MASK_FOLDER/$file | grep MUTINF | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+          printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+          #HDRFDST
+          printf "`cat $MASK_FOLDER/$file | grep HDRFDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+            printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+            #AVGDIST
+            printf "`cat $MASK_FOLDER/$file | grep AVGDIST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+              printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+              #MAHLNBS
+              printf "`cat $MASK_FOLDER/$file | grep MAHLNBS | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                #VARINFO
+                printf "`cat $MASK_FOLDER/$file | grep VARINFO | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                  printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                  #GCOERR
+                  printf "`cat $MASK_FOLDER/$file | grep GCOERR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                    printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                    #PROBDST
+                    printf "`cat $MASK_FOLDER/$file | grep PROBDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                      printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                      #SNSVTY
+                      printf "`cat $MASK_FOLDER/$file | grep SNSVTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                        printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                        #SPCFTY
+                        printf "`cat $MASK_FOLDER/$file | grep SPCFTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                          printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                          #PRCISON
+                          printf "`cat $MASK_FOLDER/$file | grep PRCISON | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                            printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                            #FMEASR
+                            printf "`cat $MASK_FOLDER/$file | grep FMEASR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                              printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                              #ACURCY
+                              printf "`cat $MASK_FOLDER/$file | grep ACURCY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                                printf "," >> $MASK_FOLDER/segmentation_ANTs.csv
+                                #FALLOUT
+                                printf "`cat $MASK_FOLDER/$file | grep FALLOUT | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_ANTs.csv
+                                  printf "\n" >> $MASK_FOLDER/segmentation_ANTs.csv
+done
+
+echo " => Organizing BSE results..."
+printf "mask,DICE,JACRD,AUC,KAPPA,RNDIND,ADJRIND,ICCORR,VOLSMTY,MUTINF,MAHLNBS,AVGDIST,HDRFDST,VARINFO,GCOERR,PROBDST,SNSVTY,SPCFTY,PRCISON,FMEASR,ACURCY,FALLOUT" >> $MASK_FOLDER/segmentation_BSE.csv
+printf "\n" >> $MASK_FOLDER/segmentation_BSE.csv
+for file in `ls $MASK_FOLDER | grep _bm_bse | grep .txt`; do
+  echo "Organizing output file: $file"
+  # File name
+  printf "${file%.*}" >> $MASK_FOLDER/segmentation_BSE.csv
+  printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+  #DICE
+  printf "`cat $MASK_FOLDER/$file | grep DICE | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+  #JACRD
+  printf "`cat $MASK_FOLDER/$file | grep JACRD | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+  #AUC
+  printf "`cat $MASK_FOLDER/$file | grep AUC | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+  #KAPPA
+  printf "`cat $MASK_FOLDER/$file | grep KAPPA | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+  #RNDIND
+  printf "`cat $MASK_FOLDER/$file | grep RNDIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+  #ADJRIND
+  printf "`cat $MASK_FOLDER/$file | grep ADJRIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+    #ICCORR
+    printf "`cat $MASK_FOLDER/$file | grep ICCORR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+      printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+      #VOLSMTY
+      printf "`cat $MASK_FOLDER/$file | grep VOLSMTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+        printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+        #MUTINF
+        printf "`cat $MASK_FOLDER/$file | grep MUTINF | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+          printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+          #HDRFDST
+          printf "`cat $MASK_FOLDER/$file | grep HDRFDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+            printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+            #AVGDIST
+            printf "`cat $MASK_FOLDER/$file | grep AVGDIST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+              printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+              #MAHLNBS
+              printf "`cat $MASK_FOLDER/$file | grep MAHLNBS | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                #VARINFO
+                printf "`cat $MASK_FOLDER/$file | grep VARINFO | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                  printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                  #GCOERR
+                  printf "`cat $MASK_FOLDER/$file | grep GCOERR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                    printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                    #PROBDST
+                    printf "`cat $MASK_FOLDER/$file | grep PROBDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                      printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                      #SNSVTY
+                      printf "`cat $MASK_FOLDER/$file | grep SNSVTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                        printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                        #SPCFTY
+                        printf "`cat $MASK_FOLDER/$file | grep SPCFTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                          printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                          #PRCISON
+                          printf "`cat $MASK_FOLDER/$file | grep PRCISON | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                            printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                            #FMEASR
+                            printf "`cat $MASK_FOLDER/$file | grep FMEASR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                              printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                              #ACURCY
+                              printf "`cat $MASK_FOLDER/$file | grep ACURCY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                                printf "," >> $MASK_FOLDER/segmentation_BSE.csv
+                                #FALLOUT
+                                printf "`cat $MASK_FOLDER/$file | grep FALLOUT | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_BSE.csv
+                                  printf "\n" >> $MASK_FOLDER/segmentation_BSE.csv
+done
+
 echo " => Organizing FSL-BET results..."
 printf "mask,DICE,JACRD,AUC,KAPPA,RNDIND,ADJRIND,ICCORR,VOLSMTY,MUTINF,MAHLNBS,AVGDIST,HDRFDST,VARINFO,GCOERR,PROBDST,SNSVTY,SPCFTY,PRCISON,FMEASR,ACURCY,FALLOUT" >> $MASK_FOLDER/segmentation_BET.csv
 printf "\n" >> $MASK_FOLDER/segmentation_BET.csv
@@ -180,77 +321,150 @@ for file in `ls $MASK_FOLDER | grep _bm_bet | grep .txt`; do
                                   printf "\n" >> $MASK_FOLDER/segmentation_BET.csv
 done
 
-echo " => Organizing FreeSurfer results..."
-printf "mask,DICE,JACRD,AUC,KAPPA,RNDIND,ADJRIND,ICCORR,VOLSMTY,MUTINF,MAHLNBS,AVGDIST,HDRFDST,VARINFO,GCOERR,PROBDST,SNSVTY,SPCFTY,PRCISON,FMEASR,ACURCY,FALLOUT" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-printf "\n" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+echo " => Organizing FreeSurfer_v5.3.0 results..."
+printf "mask,DICE,JACRD,AUC,KAPPA,RNDIND,ADJRIND,ICCORR,VOLSMTY,MUTINF,MAHLNBS,AVGDIST,HDRFDST,VARINFO,GCOERR,PROBDST,SNSVTY,SPCFTY,PRCISON,FMEASR,ACURCY,FALLOUT" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+printf "\n" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
 for file in `ls $MASK_FOLDER | grep _bm_fs | grep .txt`; do
   echo "Organizing output file: $file"
   # File name
-  printf "${file%.*}" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-  printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "${file%.*}" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+  printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
   #DICE
-  printf "`cat $MASK_FOLDER/$file | grep DICE | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "`cat $MASK_FOLDER/$file | grep DICE | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
   #JACRD
-  printf "`cat $MASK_FOLDER/$file | grep JACRD | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "`cat $MASK_FOLDER/$file | grep JACRD | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
   #AUC
-  printf "`cat $MASK_FOLDER/$file | grep AUC | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "`cat $MASK_FOLDER/$file | grep AUC | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
   #KAPPA
-  printf "`cat $MASK_FOLDER/$file | grep KAPPA | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "`cat $MASK_FOLDER/$file | grep KAPPA | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
   #RNDIND
-  printf "`cat $MASK_FOLDER/$file | grep RNDIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "`cat $MASK_FOLDER/$file | grep RNDIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
   #ADJRIND
-  printf "`cat $MASK_FOLDER/$file | grep ADJRIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+  printf "`cat $MASK_FOLDER/$file | grep ADJRIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
     #ICCORR
-    printf "`cat $MASK_FOLDER/$file | grep ICCORR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-      printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+    printf "`cat $MASK_FOLDER/$file | grep ICCORR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+      printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
       #VOLSMTY
-      printf "`cat $MASK_FOLDER/$file | grep VOLSMTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-        printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+      printf "`cat $MASK_FOLDER/$file | grep VOLSMTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+        printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
         #MUTINF
-        printf "`cat $MASK_FOLDER/$file | grep MUTINF | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-          printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+        printf "`cat $MASK_FOLDER/$file | grep MUTINF | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+          printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
           #HDRFDST
-          printf "`cat $MASK_FOLDER/$file | grep HDRFDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-            printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+          printf "`cat $MASK_FOLDER/$file | grep HDRFDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+            printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
             #AVGDIST
-            printf "`cat $MASK_FOLDER/$file | grep AVGDIST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-              printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+            printf "`cat $MASK_FOLDER/$file | grep AVGDIST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+              printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
               #MAHLNBS
-              printf "`cat $MASK_FOLDER/$file | grep MAHLNBS | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+              printf "`cat $MASK_FOLDER/$file | grep MAHLNBS | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                 #VARINFO
-                printf "`cat $MASK_FOLDER/$file | grep VARINFO | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                  printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                printf "`cat $MASK_FOLDER/$file | grep VARINFO | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                  printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                   #GCOERR
-                  printf "`cat $MASK_FOLDER/$file | grep GCOERR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                    printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                  printf "`cat $MASK_FOLDER/$file | grep GCOERR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                     #PROBDST
-                    printf "`cat $MASK_FOLDER/$file | grep PROBDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                      printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                    printf "`cat $MASK_FOLDER/$file | grep PROBDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                      printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                       #SNSVTY
-                      printf "`cat $MASK_FOLDER/$file | grep SNSVTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                        printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                      printf "`cat $MASK_FOLDER/$file | grep SNSVTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                        printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                         #SPCFTY
-                        printf "`cat $MASK_FOLDER/$file | grep SPCFTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                          printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                        printf "`cat $MASK_FOLDER/$file | grep SPCFTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                          printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                           #PRCISON
-                          printf "`cat $MASK_FOLDER/$file | grep PRCISON | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                            printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                          printf "`cat $MASK_FOLDER/$file | grep PRCISON | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                            printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                             #FMEASR
-                            printf "`cat $MASK_FOLDER/$file | grep FMEASR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                              printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                            printf "`cat $MASK_FOLDER/$file | grep FMEASR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                              printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                               #ACURCY
-                              printf "`cat $MASK_FOLDER/$file | grep ACURCY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                                printf "," >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                              printf "`cat $MASK_FOLDER/$file | grep ACURCY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                                printf "," >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
                                 #FALLOUT
-                                printf "`cat $MASK_FOLDER/$file | grep FALLOUT | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
-                                  printf "\n" >> $MASK_FOLDER/segmentation_FreeSurfer.csv
+                                printf "`cat $MASK_FOLDER/$file | grep FALLOUT | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+                                  printf "\n" >> $MASK_FOLDER/segmentation_FreeSurferv530.csv
+done
+
+echo " => Organizing FreeSurfer_v6.0.0 results..."
+printf "mask,DICE,JACRD,AUC,KAPPA,RNDIND,ADJRIND,ICCORR,VOLSMTY,MUTINF,MAHLNBS,AVGDIST,HDRFDST,VARINFO,GCOERR,PROBDST,SNSVTY,SPCFTY,PRCISON,FMEASR,ACURCY,FALLOUT" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+printf "\n" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+for file in `ls $MASK_FOLDER | grep _bm_fsv6 | grep .txt`; do
+  echo "Organizing output file: $file"
+  # File name
+  printf "${file%.*}" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  #DICE
+  printf "`cat $MASK_FOLDER/$file | grep DICE | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  #JACRD
+  printf "`cat $MASK_FOLDER/$file | grep JACRD | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  #AUC
+  printf "`cat $MASK_FOLDER/$file | grep AUC | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  #KAPPA
+  printf "`cat $MASK_FOLDER/$file | grep KAPPA | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  #RNDIND
+  printf "`cat $MASK_FOLDER/$file | grep RNDIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+  #ADJRIND
+  printf "`cat $MASK_FOLDER/$file | grep ADJRIND | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+    #ICCORR
+    printf "`cat $MASK_FOLDER/$file | grep ICCORR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+      printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+      #VOLSMTY
+      printf "`cat $MASK_FOLDER/$file | grep VOLSMTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+        printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+        #MUTINF
+        printf "`cat $MASK_FOLDER/$file | grep MUTINF | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+          printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+          #HDRFDST
+          printf "`cat $MASK_FOLDER/$file | grep HDRFDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+            printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+            #AVGDIST
+            printf "`cat $MASK_FOLDER/$file | grep AVGDIST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+              printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+              #MAHLNBS
+              printf "`cat $MASK_FOLDER/$file | grep MAHLNBS | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                #VARINFO
+                printf "`cat $MASK_FOLDER/$file | grep VARINFO | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                  printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                  #GCOERR
+                  printf "`cat $MASK_FOLDER/$file | grep GCOERR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                    printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                    #PROBDST
+                    printf "`cat $MASK_FOLDER/$file | grep PROBDST | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                      printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                      #SNSVTY
+                      printf "`cat $MASK_FOLDER/$file | grep SNSVTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                        printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                        #SPCFTY
+                        printf "`cat $MASK_FOLDER/$file | grep SPCFTY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                          printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                          #PRCISON
+                          printf "`cat $MASK_FOLDER/$file | grep PRCISON | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                            printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                            #FMEASR
+                            printf "`cat $MASK_FOLDER/$file | grep FMEASR | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                              printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                              #ACURCY
+                              printf "`cat $MASK_FOLDER/$file | grep ACURCY | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                                printf "," >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                                #FALLOUT
+                                printf "`cat $MASK_FOLDER/$file | grep FALLOUT | awk '{print $3}'`" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
+                                  printf "\n" >> $MASK_FOLDER/segmentation_FreeSurferv600.csv
 done
 
 echo " => Organizing optiBET results..."

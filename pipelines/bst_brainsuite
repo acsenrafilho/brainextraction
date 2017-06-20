@@ -11,5 +11,5 @@ EDGE_BS=`cat config/config_var.conf | grep EDGE_BS= | cut -c9-14`
 NUMIT_BS=`cat config/config_var.conf | grep NUMIT_BS= | cut -c10-15`
 
 #Apply BrainSuite
-bse -i $T1_FOLDER/${T1_IMAGE}.nii.gz --mask $MASK_FOLDER/${T1_IMAGE}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS} -d $DIFF_BS -n $NUMIT_BS -s $EDGE_BS
+bse -i $T1_FOLDER/${T1_IMAGE}.nii.gz --mask $MASK_FOLDER/${T1_IMAGE}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}.nii.gz -d $DIFF_BS -n $NUMIT_BS -s $EDGE_BS
 

@@ -1,9 +1,8 @@
 #!/bin/bash
-#FSL-BET brain excration pipeline
+#optiBET brain excration pipeline
 
 #Options variables:
-# -B
-# -f
+# -a Use AFNI as initial mask
 
 T1_IMAGE=$1
 T1_FOLDER=$2

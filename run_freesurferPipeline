@@ -26,16 +26,43 @@ fi
 export SUBJECTS_DIR=$T1_FOLDER/FreeSurfer-recon-all
 #Freesurfer Analysis
 for t1Image in $LIST_T1_NAMES; do
-   for maskType in `ls $MASK_FOLDER | grep ${t1Image%.*.*}_autorecon1_corr`; do
-     if [[ `echo $maskType | grep _bm_fs` != "" ]]; then
+   for maskType in `ls $MASK_FOLDER | grep ${t1Image%.*.*}`; do
+     if [[ `echo $maskType | grep _bm_fsv6` != "" ]]; then
        echo ""
        echo ""
-       echo " --> Executing for FreeSurfer brain extraction - mask: $maskType"
+       echo " --> Executing for FreeSurfer v6.0.0 brain extraction - mask: $maskType"
        echo ""
        echo ""
        ATLAS=`cat config/config_var.conf | grep ATLAS= | cut -c7-9`
        FLOOD=`cat config/config_var.conf | grep FLOOD= | cut -c7-11`
-       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz
+       #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
+       recon-all -s ${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
+
+       # Performing the manual skull strip - Using: FreeSurfer brain mask
+       WHOLE_T1_FOLDER=$T1_FOLDER/FreeSurfer-recon-all/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}/mri/
+       mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
+       gzip -9 $WHOLE_T1_FOLDER/T1.nii
+       #Effectivelly performing the skull strip on T1 image
+       fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
+       gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
+       mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
+       cp $WHOLE_T1_FOLDER/brainmask.auto.mgz $WHOLE_T1_FOLDER/brainmask.mgz
+
+       #Running the rest of FreeSurfer pipeline
+       recon-all -s ${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD} -autorecon2
+       recon-all -s ${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD} -autorecon3
+     fi
+
+     if [[ `echo $maskType | grep _bm_fs` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for FreeSurfer v5.3.0 brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       ATLAS=`cat config/config_var.conf | grep ATLAS= | cut -c7-9`
+       FLOOD=`cat config/config_var.conf | grep FLOOD= | cut -c7-11`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
        #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
        recon-all -s ${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
 
@@ -63,7 +90,7 @@ for t1Image in $LIST_T1_NAMES; do
        F_THR=`cat config/config_var.conf | grep F_THR= | cut -c7-11`
        NECK_CLEAN=`cat config/config_var.conf | grep NECK_CLEAN= | cut -c12-13`
        EYE_CLEAN=`cat config/config_var.conf | grep EYE_CLEAN= | cut -c11-12`
-       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}.nii.gz
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}.nii.gz
        #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
        recon-all -s ${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
 
@@ -91,9 +118,9 @@ for t1Image in $LIST_T1_NAMES; do
        SHRINK_BOT=`cat config/config_var.conf | grep SHRINK_BOT= | cut -c12-17`
        SHRINK_FAC=`cat config/config_var.conf | grep SHRINK_FAC= | cut -c12-17`
        PUSH_EDGE=`cat config/config_var.conf | grep PUSH_EDGE= | cut -c11-13`
-       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_afni_pushEdge${PUSH_EDGE}.nii.gz
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}.nii.gz
        if [[ "$PUSH_EDGE" == "N" ]]; then
-         MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_afni_pushEdge${PUSH_EDGE}_shrFact${SHRINK_FAC}_shrBot${SHRINK_BOT}.nii.gz
+         MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}_shrFact${SHRINK_FAC}_shrBot${SHRINK_BOT}.nii.gz
        fi
        #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
        recon-all -s ${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
@@ -120,7 +147,7 @@ for t1Image in $LIST_T1_NAMES; do
        echo ""
        echo ""
        USE_AFNI=`cat config/config_var.conf | grep USE_AFNI= | cut -c10-11`
-       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_optiBET_afni${USE_AFNI}.nii.gz
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}.nii.gz
 
        #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
        recon-all -s ${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
@@ -146,7 +173,7 @@ for t1Image in $LIST_T1_NAMES; do
        echo " --> Executing for ROBEX brain extraction - mask: $maskType"
        echo ""
        echo ""
-       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_autorecon1_corr_bm_robex.nii.gz
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_robex.nii.gz
 
        #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
        recon-all -s ${t1Image%.*.*}_bm_robex -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
@@ -164,6 +191,59 @@ for t1Image in $LIST_T1_NAMES; do
        #Running the rest of FreeSurfer pipeline
        recon-all -s ${t1Image%.*.*}_bm_robex -autorecon2
        recon-all -s ${t1Image%.*.*}_bm_robex -autorecon3
+     fi
+
+     if [[ `echo $maskType | grep _bm_ants` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for ANTs brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_ants.nii.gz
+       #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
+       recon-all -s ${t1Image%.*.*}_bm_ants -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
+
+       # Performing the manual skull strip - Using: FreeSurfer brain mask
+       WHOLE_T1_FOLDER=$T1_FOLDER/FreeSurfer-recon-all/${t1Image%.*.*}_bm_ants/mri/
+       mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
+       gzip -9 $WHOLE_T1_FOLDER/T1.nii
+       #Effectivelly performing the skull strip on T1 image
+       fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
+       gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
+       mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
+       cp $WHOLE_T1_FOLDER/brainmask.auto.mgz $WHOLE_T1_FOLDER/brainmask.mgz
+
+       #Running the rest of FreeSurfer pipeline
+       recon-all -s ${t1Image%.*.*}_bm_ants -autorecon2
+       recon-all -s ${t1Image%.*.*}_bm_ants -autorecon3
+     fi
+
+     if [[ `echo $maskType | grep _bm_bse` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for BrainSuite brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       DIFF_BS=`cat config/config_var.conf | grep DIFF_BS= | cut -c9-15`
+       EDGE_BS=`cat config/config_var.conf | grep EDGE_BS= | cut -c9-14`
+       NUMIT_BS=`cat config/config_var.conf | grep NUMIT_BS= | cut -c10-15`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}.nii.gz
+       #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
+       recon-all -s ${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS} -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
+
+       # Performing the manual skull strip - Using: FreeSurfer brain mask
+       WHOLE_T1_FOLDER=$T1_FOLDER/FreeSurfer-recon-all/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}/mri/
+       mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
+       gzip -9 $WHOLE_T1_FOLDER/T1.nii
+       #Effectivelly performing the skull strip on T1 image
+       fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
+       gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
+       mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
+       cp $WHOLE_T1_FOLDER/brainmask.auto.mgz $WHOLE_T1_FOLDER/brainmask.mgz
+
+       #Running the rest of FreeSurfer pipeline
+       recon-all -s ${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS} -autorecon2
+       recon-all -s ${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS} -autorecon3
      fi
    done
 done

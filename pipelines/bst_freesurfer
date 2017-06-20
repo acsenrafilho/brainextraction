@@ -18,13 +18,13 @@ FLOOD=`cat config/config_var.conf | grep FLOOD= | cut -c7-11`
 
 #Apply FreeSurfer
 if [[ "$ATLAS" == "Y" ]]; then
-  mri_watershed -atlas -h $FLOOD $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+  mri_watershed -atlas -h $FLOOD $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz
 else
-  mri_watershed -h $FLOOD $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+  mri_watershed -h $FLOOD $T1_FOLDER/${T1_IMAGE}.nii.gz $T1_FOLDER/${T1_IMAGE}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz
 fi
 
 #Transforming the output as binary brain mask
-fslmaths $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+fslmaths $T1_FOLDER/${T1_IMAGE}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz -bin $T1_FOLDER/${T1_IMAGE}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz
 
 #Copying the brain mask to the MASK_FOLDER
-mv $T1_FOLDER/${T1_IMAGE}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz $MASK_FOLDER/
+mv $T1_FOLDER/${T1_IMAGE}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz $MASK_FOLDER/
