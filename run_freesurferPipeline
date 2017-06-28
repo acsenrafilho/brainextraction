@@ -44,6 +44,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -71,6 +73,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -99,6 +103,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -130,6 +136,12 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}_conform.nii
+       if [[ "$PUSH_EDGE" == "N" ]]; then
+         mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}_shrFact${SHRINK_FAC}_shrBot${SHRINK_BOT}_conform.nii -c
+         MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}_shrFact${SHRINK_FAC}_shrBot${SHRINK_BOT}_conform.nii
+       fi
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -157,6 +169,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -183,6 +197,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_robex_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_robex_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -199,7 +215,7 @@ for t1Image in $LIST_T1_NAMES; do
        echo " --> Executing for ANTs brain extraction - mask: $maskType"
        echo ""
        echo ""
-       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_ants.nii.gz
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_antsBrainExtractionMask.nii.gz
        #Run the first part of FreeSurfer pipeline - autorecon1 -noskullstrip
        recon-all -s ${t1Image%.*.*}_bm_ants -i $T1_FOLDER/${t1Image} -autorecon1 -noskullstrip
 
@@ -208,6 +224,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_antsBrainExtractionMask_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_antsBrainExtractionMask_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
@@ -236,6 +254,8 @@ for t1Image in $LIST_T1_NAMES; do
        mri_convert -it mgz -ot nii $WHOLE_T1_FOLDER/T1.mgz $WHOLE_T1_FOLDER/T1.nii
        gzip -9 $WHOLE_T1_FOLDER/T1.nii
        #Effectivelly performing the skull strip on T1 image
+       mri_convert -it nii -ot nii $MASK_IMAGE $WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}_conform.nii -c
+       MASK_IMAGE=$WHOLE_T1_FOLDER/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}_conform.nii
        fslmaths $WHOLE_T1_FOLDER/T1.nii.gz -mas $MASK_IMAGE $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        gzip -d $WHOLE_T1_FOLDER/brainmask.auto.nii.gz
        mri_convert -it nii -ot mgz $WHOLE_T1_FOLDER/brainmask.auto.nii $WHOLE_T1_FOLDER/brainmask.auto.mgz
