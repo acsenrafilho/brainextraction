@@ -1,0 +1,221 @@
+#!/bin/bash
+# Script to finish the rest of FreeSurfer pipeline
+
+usage(){
+  echo "  Script to apply ANTs cortical thickness on brain extraction experiment."
+  echo "    Usage: $(basename $0) <T1 folder path> <Brain masks folder>"
+  echo ""
+  echo "    <T1 folder path> = Set a folder path which contains all the T1 data to the study."
+  echo "    <Manual brain masks folder> = Set a folder path which contains all the manual brain segmentation data to the study."
+  echo "    NOTE: The brain templates used here MUST be set manually. Please fix the full path to the correct location in variables: BRAIN_TEMPLATE, BRAIN_TEMPLATE_MASK and BRAIN_PRIORS."
+  echo ""
+}
+
+ANTS_ADAPT=`which antsCorticalThickness-adapt`
+if [[ `which antsCorticalThickness-adapt` == "" ]]; then
+  echo "Please add antsCorticalThickness-adapt folder to PATH."
+  exit
+fi
+ADAPT_FOLDER=`echo $(dirname $ANTS_ADAPT)`
+
+T1_FOLDER=$1
+MASK_FOLDER=$2
+
+BRAIN_TEMPLATE=~/Pictures/OASIS-Reliability/Oasis_brianTemplate/T_template0.nii.gz
+BRAIN_TEMPLATE_MASK=~/Pictures/OASIS-Reliability/Oasis_brianTemplate/T_template0_BrainCerebellumProbabilityMask.nii.gz
+BRAIN_PRIORS=~/Pictures/OASIS-Reliability/Oasis_brianTemplate/Priors2/priors%d.nii.gz
+
+if [[ $# -lt 2 ]]; then
+  usage
+  exit
+fi
+
+LIST_T1_NAMES=`ls $T1_FOLDER | grep .nii.gz`
+if [[ ! -d $T1_FOLDER/ANTs-ct ]]; then
+  mkdir $T1_FOLDER/ANTs-ct
+fi
+# Run ANTs cortical thickness
+
+#ANTs Analysis
+for t1Image in $LIST_T1_NAMES; do
+   for maskType in `ls $MASK_FOLDER | grep ${t1Image%.*.*}`; do
+     if [[ `echo $maskType | grep _bm_fsv6` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for FreeSurfer v6.0.0 brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       ATLAS=`cat $ADAPT_FOLDER/config_var.conf | grep ATLAS= | cut -c7-9`
+       FLOOD=`cat $ADAPT_FOLDER/config_var.conf | grep FLOOD= | cut -c7-11`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_fsv6_atlas${ATLAS}_h${FLOOD}.nii.gz $OUTPUT_PREFIX/fs_v600_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/fs_v600_
+     fi
+
+     if [[ `echo $maskType | grep _bm_fs | grep -v v6` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for FreeSurfer v5.3.0 brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       ATLAS=`cat $ADAPT_FOLDER/config_var.conf | grep ATLAS= | cut -c7-9`
+       FLOOD=`cat $ADAPT_FOLDER/config_var.conf | grep FLOOD= | cut -c7-11`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_fs_atlas${ATLAS}_h${FLOOD}.nii.gz $OUTPUT_PREFIX/fs_v530_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/fs_v530_
+     fi
+
+     if [[ `echo $maskType | grep _bm_bet` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for FSL-BET brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       F_THR=`cat $ADAPT_FOLDER/config_var.conf | grep F_THR= | cut -c7-11`
+       NECK_CLEAN=`cat $ADAPT_FOLDER/config_var.conf | grep NECK_CLEAN= | cut -c12-13`
+       EYE_CLEAN=`cat $ADAPT_FOLDER/config_var.conf | grep EYE_CLEAN= | cut -c11-12`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}_mask.nii.gz
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_bet_f${F_THR}_neck${NECK_CLEAN}_eye${EYE_CLEAN}_mask.nii.gz $OUTPUT_PREFIX/bet_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/bet_
+     fi
+
+     if [[ `echo $maskType | grep _bm_afni` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for AFNI brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       SHRINK_BOT=`cat $ADAPT_FOLDER/config_var.conf | grep SHRINK_BOT= | cut -c12-17`
+       SHRINK_FAC=`cat $ADAPT_FOLDER/config_var.conf | grep SHRINK_FAC= | cut -c12-17`
+       PUSH_EDGE=`cat $ADAPT_FOLDER/config_var.conf | grep PUSH_EDGE= | cut -c11-13`
+       MASK_IMAGE=$MASK_FOLDER/`ls $MASK_FOLDER | grep _bm_afni_`
+
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_afni_pushEdge${PUSH_EDGE}
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/`ls $OUTPUT_PREFIX | grep _bm_afni_` $OUTPUT_PREFIX/afni_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/afni_
+     fi
+
+     if [[ `echo $maskType | grep _bm_optiBET` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for optiBET brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       USE_AFNI=`cat $ADAPT_FOLDER/config_var.conf | grep USE_AFNI= | cut -c10-11`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}.nii.gz
+
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_optiBET_afni${USE_AFNI}.nii.gz $OUTPUT_PREFIX/optiBET_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/optiBET_
+     fi
+
+     if [[ `echo $maskType | grep _bm_robex` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for ROBEX brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_robex.nii.gz
+
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_robex
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_robex
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_robex.nii.gz $OUTPUT_PREFIX/robex_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/robex_
+     fi
+
+     if [[ `echo $maskType | grep _bm_ants` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for ANTs brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_antsBrainExtractionMask.nii.gz
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_antsBrainExtractionMask
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_antsBrainExtractionMask
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_antsBrainExtractionMask.nii.gz $OUTPUT_PREFIX/ants_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/ants_
+     fi
+
+     if [[ `echo $maskType | grep _bm_bse` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for BrainSuite brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       DIFF_BS=`cat $ADAPT_FOLDER/config_var.conf | grep DIFF_BS= | cut -c9-15`
+       EDGE_BS=`cat $ADAPT_FOLDER/config_var.conf | grep EDGE_BS= | cut -c9-14`
+       NUMIT_BS=`cat $ADAPT_FOLDER/config_var.conf | grep NUMIT_BS= | cut -c10-15`
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}.nii.gz
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_bm_bse_d${DIFF_BS}_n${NUMIT_BS}_s${EDGE_BS}.nii.gz $OUTPUT_PREFIX/bse_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/bse_
+     fi
+
+     if [[ `echo $maskType | grep manual` != "" ]]; then
+       echo ""
+       echo ""
+       echo " --> Executing for Manual brain extraction - mask: $maskType"
+       echo ""
+       echo ""
+       MASK_IMAGE=$MASK_FOLDER/${t1Image%.*.*}_manualmask.nii.gz
+
+       #Copy the mask file to folder
+       mkdir $T1_FOLDER/ANTs-ct/${t1Image%.*.*}_manualmask
+       OUTPUT_PREFIX=$T1_FOLDER/ANTs-ct/${t1Image%.*.*}_manualmask
+       cp $T1_FOLDER/${t1Image} $OUTPUT_PREFIX
+       cp $MASK_IMAGE $OUTPUT_PREFIX
+       #  Change the mask name to ANTs pipeline pattern
+       mv $OUTPUT_PREFIX/${t1Image%.*.*}_manualmask.nii.gz $OUTPUT_PREFIX/manual_BrainExtractionMask.nii.gz
+
+       antsCorticalThickness.sh -d 3 -a $OUTPUT_PREFIX/${t1Image} -e $BRAIN_TEMPLATE -m $BRAIN_TEMPLATE_MASK -p $BRAIN_PRIORS -o $OUTPUT_PREFIX/manual_
+     fi
+   done
+done
